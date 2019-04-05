@@ -1,43 +1,57 @@
 version: 2
 
 jobs:
-  jdk8-library-service:
-    working_directory: ~/jdk8-library-service
+  build-library-service-jdk8:
+    working_directory: ~/build-library-service-jdk8
     docker:
       - image: circleci/openjdk:8-jdk
     steps:
       - checkout
       - setup_remote_docker
-      - run: cd library-service && ./gradlew build
+      - run: cd library-service && ./gradlew unitTest
       - store_test_results:
-          path: library-service/build/test-results
+          path: library-service/build/test-results/unitTest
+          destination: unit-tests
+      - run: cd library-service && ./gradlew integrationTest
+      - store_test_results:
+          path: library-service/build/test-results/integrationTest
+          destination: integration-tests
+      - run: cd library-service && ./gradlew acceptanceTest
+      - store_test_results:
+          path: library-service/build/test-results/acceptanceTest
+          destination: acceptance-tests
+      - run: cd library-service && ./gradlew contractTest
+      - store_test_results:
+          path: library-service/build/test-results/contractTest
+          destination: contract-tests
 
-  jdk8-library-enrichment:
-    working_directory: ~/jdk8-library-enrichment
+  build-library-service-jdk11:
+    working_directory: ~/build-library-service-jdk8
     docker:
-      - image: circleci/openjdk:8-jdk
+      - image: circleci/openjdk:11-jdk
     steps:
       - checkout
       - setup_remote_docker
-      - run: cd library-enrichment && ./gradlew build
+      - run: cd library-service && ./gradlew unitTest
       - store_test_results:
-          path: library-enrichment/build/test-results
-
-  jdk8-library-integration-slack:
-    working_directory: ~/jdk8-library-integration-slack
-    docker:
-      - image: circleci/openjdk:8-jdk
-    steps:
-      - checkout
-      - setup_remote_docker
-      - run: cd library-integration-slack && ./gradlew build
+          path: library-service/build/test-results/unitTest
+          destination: unit-tests
+      - run: cd library-service && ./gradlew integrationTest
       - store_test_results:
-          path: library-integration-slack/build/test-results
+          path: library-service/build/test-results/integrationTest
+          destination: integration-tests
+      - run: cd library-service && ./gradlew acceptanceTest
+      - store_test_results:
+          path: library-service/build/test-results/acceptanceTest
+          destination: acceptance-tests
+      - run: cd library-service && ./gradlew contractTest
+      - store_test_results:
+          path: library-service/build/test-results/contractTest
+          destination: contract-tests
 
 workflows:
   version: 2
-  jdk8:
+  build-library-service:
     jobs:
-    - jdk8-library-service
-    - jdk8-library-enrichment
-    - jdk8-library-integration-slack
+    - build-library-service-jdk8
+    - build-library-service-jdk11
